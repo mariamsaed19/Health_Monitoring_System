@@ -3,6 +3,10 @@ import java.io.IOException;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Receiver {
 
@@ -13,6 +17,7 @@ public class Receiver {
     private DatagramSocket socket;
     private String recentDate;
     HDFSWriter writer = null;
+    ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public static void main(String[] args) throws IOException {
         Receiver r = new Receiver("10.0.6.165", 3500);
@@ -57,15 +62,22 @@ public class Receiver {
     /*
     * buffer messages until there are 1024, then send to HDFS writer
     * */
-    private void bufferMsg(String msg) throws IOException {
+    private void bufferMsg(String msg) {
         this.msgBuffer[this.counter] = msg;
         if(this.counter >= 1023 || this.getDate().compareTo(this.recentDate) != 0){
             System.out.println("current : " + this.getDate() + ", recent : " + this.recentDate);
             this.recentDate = this.getDate();
             this.counter = -1;
             System.out.println("********************************************************************************************************************************");
-            writer.write(msgBuffer, recentDate);
-            // TODO zero out the msgbuffer
+            executor.execute(()-> {
+                String[] temp = Arrays.copyOfRange(msgBuffer, 0,counter);
+                try {
+                    writer.write(temp, recentDate);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            msgBuffer = new String[1024];
         }
         this.counter = (this.counter + 1) % 1024;
     }
