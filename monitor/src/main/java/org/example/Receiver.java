@@ -72,7 +72,7 @@ public class Receiver {
 
     private String getDate(){
         LocalDateTime myDateObj = LocalDateTime.now();
-        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd_MM_yyyy");
         return myDateObj.format(myFormatObj) + ".log";
     }
 }
