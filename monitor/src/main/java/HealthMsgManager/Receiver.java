@@ -2,6 +2,8 @@ package HealthMsgManager;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.net.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Receiver {
 
@@ -10,9 +12,10 @@ public class Receiver {
     private String[] msgBuffer;
     private int counter;
     private DatagramSocket socket;
+    private String recentDate;
 
     public static void main(String[] args) throws IOException {
-        Receiver r = new Receiver("192.168.1.9", 3500);
+        Receiver r = new Receiver("10.0.6.165", 3500);
         r.receive();
     }
 
@@ -22,6 +25,8 @@ public class Receiver {
         this.port = port;
         this.msgBuffer = new String[1024];
         this.counter = 0;
+        this.recentDate = this.getDate();
+        System.out.println("in constructor " + this.recentDate);
         try {
             this.socket = new DatagramSocket(port, InetAddress.getByName(ip));
         } catch (SocketException | UnknownHostException e) {
@@ -52,10 +57,19 @@ public class Receiver {
     * */
     private void bufferMsg(String msg){
         this.msgBuffer[this.counter] = msg;
-        if(this.counter >= 1023){
-            //TODO: send to HDFS writer
+        if(this.counter >= 1023 || this.getDate().compareTo(this.recentDate) != 0){
+            System.out.println("current : " + this.getDate() + ", recent : " + this.recentDate);
+            this.recentDate = this.getDate();
+            this.counter = -1;
             System.out.println("********************************************************************************************************************************");
+            //TODO: send to HDFS writer
         }
         this.counter = (this.counter + 1) % 1024;
+    }
+
+    private String getDate(){
+        LocalDateTime myDateObj = LocalDateTime.now();
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        return myDateObj.format(myFormatObj) + ".log";
     }
 }
