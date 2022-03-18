@@ -42,7 +42,7 @@ public class Receiver {
             socket.receive(rcvPkt);
             //display received
             String received = new String(rcvPkt.getData(), 0, rcvPkt.getLength());
-            System.out.println("received string: "+ received);
+            System.out.println("received string " + this.counter + ": "+ received);
             this.bufferMsg(received);
         }
     }
@@ -54,8 +54,8 @@ public class Receiver {
         this.msgBuffer[this.counter] = msg;
         if(this.counter >= 1023){
             //TODO: send to HDFS writer
-            System.out.println("****************************************************************");
+            System.out.println("********************************************************************************************************************************");
         }
-        this.counter = (this.counter + 1) % 1023;
+        this.counter = (this.counter + 1) % 1024;
     }
 }
