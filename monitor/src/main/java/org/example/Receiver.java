@@ -54,7 +54,7 @@ public class Receiver {
             socket.receive(rcvPkt);
             //display received
             String received = new String(rcvPkt.getData(), 0, rcvPkt.getLength());
-            System.out.println("received string " + this.counter + ": "+ received);
+            //System.out.println("received string " + this.counter + ": "+ received);
             this.bufferMsg(received);
         }
     }
@@ -67,17 +67,28 @@ public class Receiver {
         if(this.counter >= 1023 || this.getDate().compareTo(this.recentDate) != 0){
             System.out.println("current : " + this.getDate() + ", recent : " + this.recentDate);
             this.recentDate = this.getDate();
-            this.counter = -1;
             System.out.println("********************************************************************************************************************************");
             executor.execute(()-> {
                 String[] temp = Arrays.copyOfRange(msgBuffer, 0,counter);
                 try {
-                    writer.write(temp, recentDate);
+                    writer.write(temp, "2018.log");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                /*for(int i = 0 ; i < 50; i++){
+
+                    System.out.println(i);
+                }*/
             });
+            /*String[] temp = Arrays.copyOfRange(msgBuffer, 0,counter);
+            try {
+                writer.write(temp, "2019.log");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }*/
             msgBuffer = new String[1024];
+            this.counter = -1;
         }
         this.counter = (this.counter + 1) % 1024;
     }

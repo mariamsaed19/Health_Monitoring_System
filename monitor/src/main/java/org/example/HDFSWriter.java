@@ -21,6 +21,7 @@ public class HDFSWriter {
         /* THIS IS NOT DUPLICATE CODE. I've wirtten it this way to be able to use
          * try with resources. */
         if (fs.exists(path)) {
+            System.out.println("========== APPENDING");
             try(FSDataOutputStream outputStream = fs.append(path)){
                 for (String msg : buffer) {
                     outputStream.write(msg.getBytes(StandardCharsets.UTF_8)); //write UTF-8
@@ -28,6 +29,7 @@ public class HDFSWriter {
                 }
             }
         } else {
+            System.out.println("========== CREATING");
             try(FSDataOutputStream outputStream = fs.create(path)){
                 for (String msg : buffer) {
                     outputStream.write(msg.getBytes(StandardCharsets.UTF_8)); //write UTF-8
