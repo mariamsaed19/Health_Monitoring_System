@@ -5,7 +5,7 @@ import psutil
 
 date = datetime.datetime.now()
 timestamp = int(datetime.datetime.timestamp(date))
-CPU = psutil.cpu_percent()
+CPU = psutil.cpu_percent(1)
 RAM = psutil.virtual_memory()
 Disk = psutil.disk_usage('/')
 r_total = round(RAM.total/(2**30),2)
@@ -34,10 +34,11 @@ print("UDP target IP: ", UDP_IP)
 print("UDP target port: ", UDP_PORT)
 print("message:", MESSAGE)
 
-
+'''
 sock = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 # send many messages
 for i in range(1030):
     print("Send message ",i)
     sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
+'''
