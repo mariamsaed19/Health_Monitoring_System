@@ -75,11 +75,6 @@ public class Receiver {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-                /*for(int i = 0 ; i < 50; i++){
-
-                    System.out.println(i);
-                }*/
             });
             /*String[] temp = Arrays.copyOfRange(msgBuffer, 0,counter);
             try {
