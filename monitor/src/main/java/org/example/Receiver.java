@@ -1,12 +1,11 @@
 package org.example;
+
 import java.io.IOException;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class Receiver {
 
@@ -17,10 +16,26 @@ public class Receiver {
     private DatagramSocket socket;
     private String recentDate;
     HDFSWriter2 writer = null;
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+    static ExecutorService executor = Executors.newSingleThreadExecutor();
+    //public static BlockingQueue<Long> arrivalTime = new LinkedBlockingQueue<>(); //added this for stats..
+    // but need some more thinking
 
     public static void main(String[] args) throws IOException {
-        Receiver r = new Receiver("10.0.1.57", 3500);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down, please wait while writing jobs are finished. " +
+                    "Allow up to 5 minutes.");
+            executor.shutdown();
+            try {
+                while(!executor.awaitTermination(5, TimeUnit.MINUTES)){
+                    System.out.println("5 minutes have passed but the tasks are still running. Please wait.");
+                }
+            } catch (InterruptedException e) {
+                System.out.println("Do you want to lose all your hard work?!");
+                e.printStackTrace();
+            }
+        }));
+
+        Receiver r = new Receiver("localhost", 3500);
         r.receive();
     }
 
@@ -52,6 +67,7 @@ public class Receiver {
         while(true){
             DatagramPacket rcvPkt = new DatagramPacket(bfr, bfr.length);
             socket.receive(rcvPkt);
+            //arrivalTime.add(System.currentTimeMillis());
             //display received
             String received = new String(rcvPkt.getData(), 0, rcvPkt.getLength());
             //System.out.println("received string " + this.counter + ": "+ received);
@@ -68,13 +84,15 @@ public class Receiver {
             System.out.println("current : " + this.getDate() + ", recent : " + this.recentDate + ", received : " + this.counter);
             this.recentDate = this.getDate();
             System.out.println("********************************************************************************************************************************");
+
             String[] temp = Arrays.copyOfRange(this.msgBuffer, 0,this.counter);
             executor.execute(()-> {
-
-
-                System.out.println("buffer >>> " + temp.length );
+                System.out.println("buffer >>> " + temp.length);
                 try {
+                    long start = System.currentTimeMillis(), end;
                     writer.write(temp, "0006.log");
+                    end = System.currentTimeMillis();
+                    System.out.printf("Writing in HDFS: %f records/second\n", (double)temp.length/(end-start));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
