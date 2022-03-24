@@ -19,6 +19,7 @@ public class HDFSWriter2 {
      *               if the day ended before 1024 messages have been received.
      * @param date The name of the file in which this buffer should be logged*/
     public boolean write(String[] buffer, String date) throws IOException {
+        System.out.println("========== STARTING "+buffer.length);
         Path path = new Path(date);
 
         if (!currentFile.equals(date)){
@@ -35,14 +36,16 @@ public class HDFSWriter2 {
                 System.out.println("========== APPENDING");
                 outputStream = fs.append(path);
             }
+        }else{
+            System.out.println("========== APPENDING");
         }
-
+        System.out.println(outputStream);
         for (String msg : buffer) {
             outputStream.write(msg.getBytes(StandardCharsets.UTF_8)); //write UTF-8
             outputStream.writeChar('\n');
         }
         outputStream.hflush();
-
+        System.out.println("========== FINISHED");
         return true;
     }
 

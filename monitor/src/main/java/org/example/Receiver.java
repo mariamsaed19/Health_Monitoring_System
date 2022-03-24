@@ -16,11 +16,11 @@ public class Receiver {
     private int counter;
     private DatagramSocket socket;
     private String recentDate;
-    HDFSWriter writer = null;
+    HDFSWriter2 writer = null;
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public static void main(String[] args) throws IOException {
-        Receiver r = new Receiver("10.0.6.165", 3500);
+        Receiver r = new Receiver("10.0.1.57", 3500);
         r.receive();
     }
 
@@ -39,7 +39,7 @@ public class Receiver {
             e.printStackTrace();
         }
 
-        writer = new HDFSWriter();
+        writer = new HDFSWriter2();
     }
 
 
@@ -65,13 +65,16 @@ public class Receiver {
     private void bufferMsg(String msg) {
         this.msgBuffer[this.counter] = msg;
         if(this.counter >= 1023 || this.getDate().compareTo(this.recentDate) != 0){
-            System.out.println("current : " + this.getDate() + ", recent : " + this.recentDate);
+            System.out.println("current : " + this.getDate() + ", recent : " + this.recentDate + ", received : " + this.counter);
             this.recentDate = this.getDate();
             System.out.println("********************************************************************************************************************************");
+            String[] temp = Arrays.copyOfRange(this.msgBuffer, 0,this.counter);
             executor.execute(()-> {
-                String[] temp = Arrays.copyOfRange(msgBuffer, 0,counter);
+
+
+                System.out.println("buffer >>> " + temp.length );
                 try {
-                    writer.write(temp, "2018.log");
+                    writer.write(temp, "0006.log");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
