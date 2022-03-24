@@ -53,6 +53,7 @@ public class HDFSWriter2 implements Closeable {
     public HDFSWriter2() throws IOException {
         Configuration conf = new Configuration();
         conf.set("fs.defaultFS","hdfs://hadoop-namenode:9820");
+        conf.set("dfs.replication", "1"); //might remove the bad datanode error
         fs = FileSystem.get(conf);
     }
 
