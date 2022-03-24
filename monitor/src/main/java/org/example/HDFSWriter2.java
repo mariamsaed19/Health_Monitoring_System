@@ -5,10 +5,11 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class HDFSWriter2 {
+public class HDFSWriter2 implements Closeable {
 
     private FileSystem fs = null;
     private String currentFile = "13_13_2013.log";
@@ -53,5 +54,10 @@ public class HDFSWriter2 {
         Configuration conf = new Configuration();
         conf.set("fs.defaultFS","hdfs://hadoop-namenode:9820");
         fs = FileSystem.get(conf);
+    }
+
+    @Override
+    public void close() throws IOException {
+        outputStream.close();
     }
 }
