@@ -11,7 +11,7 @@ public class HDFSController {
     @GetMapping("/")
     public HealthAnalytics getWindow(@RequestParam(value = "from") String startDate,
                                      @RequestParam(value = "to") String endDate){
-        return // MapReduce.bla bla..????
+        return null;// MapReduce.bla bla..????
     }
 
 }
