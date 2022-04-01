@@ -29,7 +29,6 @@ public class Receiver {
         this.recentDate = this.getDate();
         this.writer = writer;
         this.executor = executor;
-        System.out.println("in constructor " + this.recentDate);
         try {
             this.socket = new DatagramSocket(port, InetAddress.getByName(ip));
         } catch (SocketException | UnknownHostException e) {
@@ -50,7 +49,6 @@ public class Receiver {
             socket.receive(rcvPkt);
             //display received
             String received = new String(rcvPkt.getData(), 0, rcvPkt.getLength());
-            //System.out.println("received string " + this.counter + ": "+ received);
             this.bufferMsg(received);
         }
     }
@@ -66,20 +64,17 @@ public class Receiver {
         }
 
         if(this.counter >= 1023 || this.getDate().compareTo(this.recentDate) != 0){
-            System.out.println("current : " + this.getDate() + ", recent : " + this.recentDate + ", received : " + this.counter);
             this.recentDate = this.getDate();
-            System.out.println("********************************************************************************************************************************");
-
+            System.out.println("****************************" + "file : " + this.getDate() + ", received : " + this.counter + "*******************************************");
             String[] temp = Arrays.copyOfRange(this.msgBuffer, 0,this.counter + 1);
             String temp_date = this.recentDate;
             executor.execute(()-> {
-                System.out.println("buffer >>> " + temp.length);
                 try {
                     long start = System.currentTimeMillis(), end;
                     writer.write(temp, temp_date);
                     end = System.currentTimeMillis();
                     System.out.printf("Writing in HDFS: %f records/second\n", (double)temp.length/(end-start));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             });
