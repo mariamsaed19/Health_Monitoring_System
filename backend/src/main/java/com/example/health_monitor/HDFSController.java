@@ -20,7 +20,7 @@ import java.util.List;
 public class HDFSController {
 
     @GetMapping("/")
-    public List<JSONObject> getWindow(@RequestParam(value = "from") String startDate,
+    public List<String> getWindow(@RequestParam(value = "from") String startDate,
                                       @RequestParam(value = "to") String endDate) throws IOException, ClassNotFoundException, InterruptedException {
         DateFormat DFormat = new SimpleDateFormat("dd_MM_yyyy");
         Date start = null, end = null;
@@ -31,7 +31,7 @@ public class HDFSController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Malformed dates");
         }
         Analyser analyser = new Analyser();
-        if (analyser.generateStats(start.toString(), end.toString()))
+        if (analyser.generateStats(startDate, endDate))
             return analyser.readResults();
         return null;
     }
