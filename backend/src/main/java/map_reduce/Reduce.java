@@ -1,12 +1,13 @@
 package map_reduce;
 
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class Reduce extends Reducer<Text, Text,Text,Text>{
+public class Reduce extends Reducer<Text, Text, NullWritable,Text>{
     public void reduce(Text key, Iterable<Text> values,Context context) throws IOException,InterruptedException {
         float avgCpu = 0;
         float avgDisk = 0;
@@ -71,6 +72,7 @@ public class Reduce extends Reducer<Text, Text,Text,Text>{
 
         //statistics json
         JSONObject stats = new JSONObject();
+        stats.put("serviceName", key.toString());
         stats.put("cpu", avgCpu);
         stats.put("disk", avgDisk);
         stats.put("ram", avgRAM);
@@ -82,6 +84,8 @@ public class Reduce extends Reducer<Text, Text,Text,Text>{
         stats.put("ram_peak_util", maxUtilRam);
         stats.put("count", counter);
 
-        context.write(key, new Text(stats.toString()));
+        // I want the final file to have multiple lines,
+        // each line containing a JSON object of the form {serviceName: .., cpu: .. etc}
+        context.write(NullWritable.get(), new Text(stats.toString()));
     }
 }
