@@ -1,5 +1,6 @@
 package map_reduce;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
@@ -8,18 +9,22 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.fs.Path;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Analyser {
 
-
+    private final Configuration conf = new Configuration();
 
     public boolean generateStats(String startDate, String endDate) throws IOException, ClassNotFoundException, InterruptedException {
         System.out.println("Start ....");
         String[] paths = {"/user/input/", "/user/output/"};  //set input and output paths for MapReduce
         //set configurations
-        Configuration conf = new Configuration();
         conf.set("fs.defaultFS","hdfs://hadoop-namenode:9820");
         conf.set("dfs.replication", "1");
         conf.set("start_date", startDate);
@@ -50,5 +55,15 @@ public class Analyser {
         //exiting the job only if the flag value becomes false
         System.out.println("MapReduce is launched.");
         return job.waitForCompletion(true) ? true : false;
+    }
+
+    public List<JSONObject> readResults() throws IOException {
+        FileSystem fs = FileSystem.get(conf);
+        Path path = new Path("");
+        List<JSONObject> list = null;
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(path)))){
+            list = reader.lines().map(JSONObject::new).collect(Collectors.toList());
+        }
+        return list;
     }
 }
