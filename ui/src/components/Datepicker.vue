@@ -17,6 +17,7 @@
         <template v-slot:activator="{ on, attrs }">
           <v-text-field
             v-model="date1"
+            @change="onupdate"
             label="Choose starting date"
             prepend-icon="mdi-calendar"
             readonly
@@ -27,6 +28,7 @@
         <v-date-picker
           v-model="date1"
           @input="menu1 = false"
+          @change="onupdate"
         ></v-date-picker>
       </v-menu>
     </v-col>
@@ -57,6 +59,7 @@
         <v-date-picker
           v-model="date2"
           @input="menu2 = false"
+          @change="onupdate"
         ></v-date-picker>
       </v-menu>
     </v-col>
@@ -75,5 +78,10 @@
     date2: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     menu2: false,
     }),
+    methods:{
+      onupdate(){
+        this.$emit('change',[this.date1,this.date2])
+      }
+    }
   }
 </script>
