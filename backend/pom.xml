@@ -63,6 +63,11 @@
             <artifactId>hadoop-mapreduce-client-core</artifactId>
             <version>3.3.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.3.18</version>
+        </dependency>
     </dependencies>
 
     <build>
