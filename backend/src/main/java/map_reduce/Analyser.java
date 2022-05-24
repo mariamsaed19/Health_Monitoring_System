@@ -57,12 +57,14 @@ public class Analyser {
         return job.waitForCompletion(true) ? true : false;
     }
 
-    public List<JSONObject> readResults() throws IOException {
+    public List<String> readResults() throws IOException {
         FileSystem fs = FileSystem.get(conf);
-        Path path = new Path("");
-        List<JSONObject> list = null;
+        Path path = new Path("/user/output/part-r-00000");
+//        List<JSONObject> list = null;
+        List<String> list = null;
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(path)))){
-            list = reader.lines().map(JSONObject::new).collect(Collectors.toList());
+//            list = reader.lines().map(JSONObject::new).collect(Collectors.toList());
+            list = reader.lines().map(String::new).collect(Collectors.toList());
         }
         return list;
     }
