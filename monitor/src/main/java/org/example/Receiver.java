@@ -49,7 +49,8 @@ public class Receiver {
             socket.receive(rcvPkt);
             //display received
             String received = new String(rcvPkt.getData(), 0, rcvPkt.getLength());
-            this.bufferMsg(received);
+            System.out.println(received);
+            //this.bufferMsg(received);
         }
     }
 
@@ -87,6 +88,6 @@ public class Receiver {
     private String getDate(){
         LocalDateTime myDateObj = LocalDateTime.now();
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd_MM_yyyy");
-        return myDateObj.format(myFormatObj) + ".log";
+        return myDateObj.format(myFormatObj) + ".csv";
     }
 }
