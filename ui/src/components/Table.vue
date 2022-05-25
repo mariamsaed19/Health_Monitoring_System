@@ -7,6 +7,8 @@
       :search="search"
       :sort-by="sortBy.toLowerCase()"
       :sort-desc="sortDesc"
+      loading
+      loading-text="Waiting for data"
       hide-default-footer
     >
       <template v-slot:header>
@@ -65,7 +67,7 @@
         <v-row>
           <v-col
             v-for="item in props.items"
-            :key="item.name"
+            :key="item['serviceName']"
             cols="12"
             sm="6"
             md="4"
@@ -73,7 +75,7 @@
           >
             <v-card>
               <v-card-title class="subheading font-weight-bold">
-                {{ item.name }}
+                {{ item['serviceName'] }}
               </v-card-title>
 
               <v-divider></v-divider>
@@ -175,18 +177,20 @@
         sortDesc: false,
         page: 1,
         itemsPerPage: 4,
-        sortBy: 'name',
+        sortBy: 'serviceName',
         keys: [
-          'Name',
-          'Calories',
-          'Fat',
-          'Carbs',
-          'Protein',
-          'Sodium',
-          'Calcium',
-          'Iron',
+          'serviceName',
+          'cpu',
+          'disk',
+          'ram',
+          'cpu_peak_time',
+          'cpu_peak_util',
+          'disk_peak_time',
+          'disk_peak_util',
+          'ram_peak_time',
+          'ram_peak_util',
+          'count',
         ],
-        
       }
     },
     computed: {
@@ -194,7 +198,7 @@
         return Math.ceil(this.items.length / this.itemsPerPage)
       },
       filteredKeys () {
-        return this.keys.filter(key => key !== 'Name')
+        return this.keys.filter(key => key !== 'serviceName')
       },
     },
     methods: {
