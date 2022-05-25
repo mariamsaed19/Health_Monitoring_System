@@ -1,9 +1,11 @@
 package com.example.scheduler;
 
+import com.example.QueryLayer.QueryHandler;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Timer;
@@ -17,7 +19,7 @@ public class Scheduler {
     private static final Object lock = new Object();
 
 
-    public static void main(){
+    public static void main() {
         // set timer. As soon as timer finishes, spark_temp should be useless
         new Timer().schedule(new TimerTask() {
             @Override
@@ -28,37 +30,42 @@ public class Scheduler {
                 DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy_MM_dd_hh");
 
                 try {
-                    Spark temp = new Spark("/user/real_view_"+fmt.format(time), new_port);
+                    String spark_path = "/user/real_view_"+fmt.format(time);
+                    Spark temp = new Spark(spark_path, new_port);
                     synchronized (lock) {
                         spark_temp = spark_main;
                         spark_main = temp;
                     }
 
                     // TODO run MapReduce
-                    String temp_path = "/user/batch_view_"+fmt.format(time);
+                    String batch_path = "../batch_view_"+fmt.format(time);
                     Runtime.getRuntime().exec("").waitFor();
 
                     // TODO tell backend
-
+                    QueryHandler update_paths = new QueryHandler();
+                    update_paths.loadView(batch_path,spark_path);
+                    // delete old real time view
                     synchronized (lock) {
                         spark_temp.delete();
                         spark_temp = null;
                     }
 
+                    // delete old batch view
                     if(mapred_path != null)
                         FileUtils.deleteDirectory(new File(mapred_path));
-                    mapred_path = temp_path;
+                    mapred_path = batch_path;
 
-                } catch (IOException | InterruptedException e) {
+                } catch (IOException | InterruptedException | SQLException e) {
                     e.printStackTrace();
                 }
             }
         }, 0, 60*60*1000);
 
 
-        Socket socket = new Socket("localhost", /*TODO*/);
-        BufferedReader br;
         try {
+            // TODO port number
+            Socket socket = new Socket("localhost", 3000);
+            BufferedReader br;
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             while (true){
