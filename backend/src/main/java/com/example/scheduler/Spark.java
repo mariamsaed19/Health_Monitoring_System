@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 public class Spark {
@@ -18,7 +20,17 @@ public class Spark {
         this.path = path;
         this.port = port;
         this.socket = new ServerSocket(this.port);
-        this.instance = Runtime.getRuntime().exec(""); //TODO
+        String home = System.getenv("SPARK_HOME");
+        Path home_path = Paths.get(home);
+        Path submit = home_path.resolve("/bin/spark-submit");
+        this.instance = Runtime
+                .getRuntime()
+                .exec(
+                        submit +
+                                " --class \"org.example.RealTime\" " +
+                                "--master local[4] /path/to/RealTime-1.0.jar " +
+                                "localhost 10101 /path/to/parquet /path/to/checkpoint"
+                ); // TODO modify paths
         client = socket.accept();
         pw = new PrintWriter(client.getOutputStream(),true);
     }
