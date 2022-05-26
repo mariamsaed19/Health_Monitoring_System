@@ -8,8 +8,9 @@
     <artifactId>ServingLayer</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <maven.compiler.source>13.0.2</maven.compiler.source>
-        <maven.compiler.target>13.0.2</maven.compiler.target>
+        <maven.compiler.source>1.8.0</maven.compiler.source>
+        <maven.compiler.target>1.8.0</maven.compiler.target>
+
     </properties>
 
     <dependencies>
@@ -55,6 +56,20 @@
             <groupId>org.apache.parquet</groupId>
             <artifactId>parquet-hadoop</artifactId>
             <version>1.8.1</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+            <version>3.2.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-common</artifactId>
+            <version>3.2.2</version>
         </dependency>
 
 

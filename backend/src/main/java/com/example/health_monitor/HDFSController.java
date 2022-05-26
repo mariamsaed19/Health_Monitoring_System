@@ -24,7 +24,7 @@ public class HDFSController {
                                       @RequestParam(value = "to") String endDate) throws IOException, ClassNotFoundException, InterruptedException {
         System.out.println("request received " + startDate + " " + endDate);
         // TODO change format to yyy-MM-dd-H_m
-        DateFormat DFormat = new SimpleDateFormat("dd_MM_yyyy");
+        DateFormat DFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
         Date start = null, end = null;
         try {
             start = DFormat.parse(startDate);
@@ -35,14 +35,11 @@ public class HDFSController {
         // TODO pass request to query handler
         try {
             QueryHandler query = new QueryHandler();
-            query.query(start.toString(),end.toString());
+
+            return query.query(startDate, endDate);
         } catch (SQLException e1) {
             e1.printStackTrace();
         }
-        catch (IOException e2){
-            //TODO try again
-        }
-
         return null;
     }
 

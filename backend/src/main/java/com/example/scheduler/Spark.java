@@ -21,16 +21,18 @@ public class Spark {
         this.port = port;
         this.socket = new ServerSocket(this.port);
         String home = System.getenv("SPARK_HOME");
-        Path home_path = Paths.get(home);
-        Path submit = home_path.resolve("/bin/spark-submit");
+        System.out.println(home);
+//        Path home_path = Paths.get(home);
+//        Path submit = home_path.resolve("/bin/spark-submit");
+        String submit = home + "\\bin\\spark-submit.cmd";
         this.instance = Runtime
                 .getRuntime()
                 .exec(
                         submit +
                                 " --class \"org.example.RealTime\" " +
-                                "--master local[4] /path/to/RealTime-1.0.jar " +
-                                "localhost 10101 /path/to/parquet /path/to/checkpoint"
-                ); // TODO modify paths
+                                "--master local[4] /target/RealTime-1.0.jar " +
+                                "localhost " + this.port + " " + this.path + " " + this.path
+                );
         client = socket.accept();
         pw = new PrintWriter(client.getOutputStream(),true);
     }

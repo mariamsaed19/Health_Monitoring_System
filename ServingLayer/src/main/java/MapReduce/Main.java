@@ -13,6 +13,10 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.parquet.avro.AvroParquetOutputFormat;
 import org.apache.parquet.example.data.Group;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 
 public class Main extends Configured implements Tool{
     public static void main(String[] args)  throws Exception{
@@ -45,7 +49,20 @@ public class Main extends Configured implements Tool{
 
 
     public int run(String[] args) throws Exception {
-        System.out.println("Start ....");
+
+        File x = new File("");
+        System.out.println("hello world  "+x.getAbsolutePath());
+        try {
+            FileWriter myWriter = new FileWriter("C:\\Users\\Manar\\Desktop\\all\\testppp.txt");
+            myWriter.write("Files in Java might be tricky, but it is fun enough!");
+            myWriter.close();
+            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+        System.out.println("Start .... again my life");
         String[] paths = {"/user/master_dataset/", "/user/batch_view/"};  //set input and output paths for MapReduce
         //set configurations
         Configuration conf = new Configuration();

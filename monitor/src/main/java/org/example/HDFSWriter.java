@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 public class HDFSWriter implements Closeable {
 
     private FileSystem fs = null;
-    private String currentFile = "13_13_2013.log";
+    private String currentFile = "13_13_2013.csv";
     private FSDataOutputStream outputStream = null;
 
     /**
@@ -21,7 +21,7 @@ public class HDFSWriter implements Closeable {
      * @param date The name of the file in which this buffer should be logged*/
     public boolean write(String[] buffer, String date) throws IOException {
         System.out.println("========== STARTING ");
-        Path path = new Path(date);
+        Path path = new Path("../master_dataset/" + date);
 
         if (!currentFile.equals(date)){
 

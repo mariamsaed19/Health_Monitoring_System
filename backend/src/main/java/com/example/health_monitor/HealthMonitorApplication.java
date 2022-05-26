@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class HealthMonitorApplication {
 
     public static void main(String[] args) {
+            SpringApplication.run(HealthMonitorApplication.class, args);
             Thread thread = new Thread(Scheduler::main);
             thread.start();
-            SpringApplication.run(HealthMonitorApplication.class, args);
 
     }
 

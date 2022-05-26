@@ -33,7 +33,7 @@ public class Main {
         }));
 
         writer = new HDFSWriter();
-        Receiver r = new Receiver("127.1.0.0", 3500, writer, executor);
+        Receiver r = new Receiver("10.0.8.30", 3500, writer, executor);
         r.receive();
     }
 }

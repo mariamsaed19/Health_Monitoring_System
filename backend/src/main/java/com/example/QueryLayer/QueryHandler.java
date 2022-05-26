@@ -4,10 +4,16 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.RemoteIterator;
@@ -17,27 +23,6 @@ public class QueryHandler {
     private Connection conn;
     private File localPath;
     private FileSystem loader;
-
-
-    public static void main(String args[]) throws IOException, SQLException {
-        QueryHandler t = new QueryHandler();
-        String real = "../batch_view/";
-        String batch = "../test_output/";
-
-        String start = "2022_03_22_10_45";
-        String end = "2022_04_09_18_59";
-
-        t.loadView(batch,real);
-        long s = System.currentTimeMillis();
-        String[] res = t.query(start, end);
-        for(int i=0;i<res.length;i++){
-            System.out.println(res[i]);
-        }
-        long f = System.currentTimeMillis();
-        long timeElapsed = f - s;
-        System.out.println("Time >> "+timeElapsed + " ms");
-    }
-
 
     public QueryHandler() throws SQLException, IOException {
         //create a connection
@@ -49,20 +34,17 @@ public class QueryHandler {
         this.loader = FileSystem.get(conf);
 
         //setting local paths
-        this.localPath = new File("local_data/");
-
-        System.out.println(this.localPath.getAbsolutePath());
+        this.localPath = new File("local_data/batch/");
     }
 
     //batchPath and realtimePath are directories in hdfs
-    public void loadView(String batchPath ,String realtimePath) throws IOException {
+    public void loadView(String batchPath) throws IOException {
         // copy to local
         Path batch = new Path(batchPath);
-        Path realtime = new Path(realtimePath);
 
+        System.out.println(" >>>>>> new data loaded to" + this.localPath);
         FileUtils.cleanDirectory(this.localPath);
         this.copyToLocal(batch);
-        this.copyToLocal(realtime);
     }
 
     private void copyToLocal(Path hdfsPath) throws IOException {
@@ -76,29 +58,29 @@ public class QueryHandler {
     }
 
 
-    //TODO: assuming start and end have the right format
-    public String[] query(String start, String end) throws SQLException {
+    public List<String> query(String start, String end){
         //query for averages and count
-        PreparedStatement p_stmt = conn.prepareStatement("SELECT  service_name,count(*), arg_max(cpu_peak_time,cpu_peak_util),arg_max(disk_peak_time,disk_peak_util),arg_max(ram_peak_time,ram_peak_util),sum(count), avg(avg_cpu), avg(avg_disk ), avg(avg_ram) FROM '" + this.localPath.getAbsolutePath() + "\\*.parquet' WHERE timestamp BETWEEN  ? AND ? GROUP BY service_name;");
+        PreparedStatement p_stmt = null;
+        try {
+            p_stmt = conn.prepareStatement("SELECT  service_name,count(*), arg_max(cpu_peak_time,cpu_peak_util),arg_max(disk_peak_time,disk_peak_util),arg_max(ram_peak_time,ram_peak_util),sum(count), avg(avg_cpu), avg(avg_disk ), avg(avg_ram) FROM '" + this.localPath.getAbsolutePath() + "\\*\\*.parquet' WHERE timestamp BETWEEN  ? AND ? GROUP BY service_name;");
+            p_stmt.setString(1, start);
+            p_stmt.setString(2, end);
+            ResultSet rs = p_stmt.executeQuery();
+            ResultSetMetaData metadata = rs.getMetaData();
+            int columnCount = metadata.getColumnCount();
 
-        p_stmt.setString(1, start);
-        p_stmt.setString(2, end);
-        ResultSet rs = p_stmt.executeQuery();
-        ResultSetMetaData metadata = rs.getMetaData();
-        int columnCount = metadata.getColumnCount();
-
-        ArrayList<String> query_res = new ArrayList<>();
-        while (rs.next()) {
-            String row = "";
-            for (int i = 1; i <= columnCount; i++) {
-                row += rs.getString(i) + ",";
+            List<String> query_res = new ArrayList<>();
+            while (rs.next()) {
+                String row = "";
+                for (int i = 1; i <= columnCount; i++) {
+                    row += rs.getString(i) + ",";
+                }
+                query_res.add(row);
             }
-            query_res.add(row);
-            //System.out.println(row);
+            System.out.println(" >>>>>> done with query processing");
+            return query_res;
+        } catch (SQLException throwables) {
+            return new ArrayList<String>();
         }
-        System.out.println("***************************");
-        String[] res = new String[query_res.size()];
-        return query_res.toArray(res);
-
     }
 }

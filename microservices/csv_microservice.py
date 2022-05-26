@@ -18,6 +18,8 @@ for filename in files_list:
 
     with open(path) as f:
         for line in f:
+            # remove new line character
+            line = line.replace('\n', '')
             # get current timestamp
             date = datetime.datetime.now()
             timestamp = int(datetime.datetime.timestamp(date))
@@ -26,6 +28,7 @@ for filename in files_list:
             msg[1] = str(timestamp)
             # rejoin array
             modified_msg = ','.join(msg)
+            print(modified_msg)
             # send message to health monitor
             UDP_IP = "127.1.0.0"
             UDP_PORT = 3500
@@ -34,7 +37,7 @@ for filename in files_list:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
             sock.sendto(byte_msg, (UDP_IP, UDP_PORT))
 
-            time.sleep(3)
+            # time.sleep(3)
 
                 
 

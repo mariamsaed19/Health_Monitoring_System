@@ -1,6 +1,8 @@
 package org.example;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,9 +16,11 @@ public class Receiver {
     private String[] msgBuffer;
     private int counter;
     private DatagramSocket socket;
+    private Socket tcpSocket;
     private String recentDate;
     private final HDFSWriter writer;
     private final ExecutorService executor;
+    private final int schedulerPort = 7777;
 
 
 
@@ -31,6 +35,7 @@ public class Receiver {
         this.executor = executor;
         try {
             this.socket = new DatagramSocket(port, InetAddress.getByName(ip));
+            this.tcpSocket = new Socket(ip, this.schedulerPort);
         } catch (SocketException | UnknownHostException e) {
             System.out.println("Failed to create socket!");
             e.printStackTrace();
@@ -46,11 +51,15 @@ public class Receiver {
         byte[] bfr = new byte[1024];
         while(true){
             DatagramPacket rcvPkt = new DatagramPacket(bfr, bfr.length);
-            socket.receive(rcvPkt);
+            this.socket.receive(rcvPkt);
             //display received
             String received = new String(rcvPkt.getData(), 0, rcvPkt.getLength());
             System.out.println(received);
-            //this.bufferMsg(received);
+            this.bufferMsg(received);
+            //send data to scheduler
+            OutputStream output = this.tcpSocket.getOutputStream();
+            PrintWriter writer = new PrintWriter(output, true);
+            writer.println(received);
         }
     }
 
